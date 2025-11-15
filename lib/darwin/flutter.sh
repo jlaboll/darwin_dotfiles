@@ -10,19 +10,19 @@
 # Helper function to update Flutter and clear macOS quarantine flags
 # Installs/updates dev tools, then updates Flutter via FVM or direct install
 # Also removes quarantine attributes that macOS applies to downloaded executables
-# Usage: bump-flutter
-function bump-flutter() {
-  install-devtools
+# Usage: bump_flutter
+function bump_flutter() {
+  install_devtools
 
-  if is-command-installed fvm; then
+  if is_command_installed fvm; then
     fvm global --unlink
     fvm remove stable
     fvm install stable -s
     fvm global stable
   fi
 
-  if is-command-installed flutter; then
-    unquarantine-flutter "$(flutter --version --machine | jq -r '.flutterRoot')"
+  if is_command_installed flutter; then
+    unquarantine_flutter "$(flutter --version --machine | jq -r '.flutterRoot')"
   fi
 }
 
@@ -30,10 +30,10 @@ function bump-flutter() {
 # Removes macOS quarantine attributes from Flutter executables
 # macOS applies quarantine flags to downloaded files, which can prevent execution
 # This function removes those flags for all Flutter-related executables
-# Usage: unquarantine-flutter "/path/to/flutter/root"
+# Usage: unquarantine_flutter "/path/to/flutter/root"
 # Parameters:
 #   $1: Path to Flutter root directory
-function unquarantine-flutter() {
+function unquarantine_flutter() {
   flutter_root="$1"
   for executable in dart dartaotruntime impellerrc gen_snapshot flutter_tester idevicesyslog iproxy "*.dylib"
   do 
@@ -51,17 +51,17 @@ fi
 
 # PATH for pub cache bash completion, if exists
 if [ -d "$HOME/.pub-cache/bin" ]; then
-  add-to-path "$HOME/.pub-cache/bin" 2>/dev/null || export PATH="$PATH:$HOME/.pub-cache/bin"
+  add_to_path "$HOME/.pub-cache/bin" 2>/dev/null || export PATH="$PATH:$HOME/.pub-cache/bin"
 fi
 
 # FVM configuration
-if is-command-installed fvm 2>/dev/null && is-command-installed jq 2>/dev/null; then
+if is_command_installed fvm 2>/dev/null && is_command_installed jq 2>/dev/null; then
   # FVM cache path env var override
   export FVM_CACHE_PATH=$(fvm api context | jq -r '.context.fvmDir')
 fi
 
-if is-command-installed fvm 2>/dev/null && [ -d "$DOTFILES_ROOT/fvm/bin" ]; then
-  add-to-path "$DOTFILES_ROOT/fvm/bin" 2>/dev/null || export PATH="$PATH:$DOTFILES_ROOT/fvm/bin"
+if is_command_installed fvm 2>/dev/null && [ -d "$DOTFILES_ROOT/fvm/bin" ]; then
+  add_to_path "$DOTFILES_ROOT/fvm/bin" 2>/dev/null || export PATH="$PATH:$DOTFILES_ROOT/fvm/bin"
 fi 
 
 ## Generated 2025-11-14 22:38:24.434932Z

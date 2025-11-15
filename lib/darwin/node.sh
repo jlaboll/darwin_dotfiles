@@ -12,10 +12,10 @@ if [ -f "$DOTFILES_ROOT/lib/darwin/common.sh" ]; then
   source "$DOTFILES_ROOT/lib/darwin/common.sh"
 fi
 
-if is-command-installed brew 2>/dev/null && is-command-installed node 2>/dev/null; then
+if is_command_installed brew 2>/dev/null && is_command_installed node 2>/dev/null; then
 	# Add node@18 to PATH (handles both Apple Silicon and Intel)
-	local brew_prefix="${HOMEBREW_PREFIX:-$(get-homebrew-prefix 2>/dev/null)}"
+	local brew_prefix="${HOMEBREW_PREFIX:-$(get_homebrew_prefix 2>/dev/null)}"
 	if [ -n "$brew_prefix" ] && [ -d "$brew_prefix/opt/node@18/bin" ]; then
-		add-to-path "$brew_prefix/opt/node@18/bin" 2>/dev/null || export PATH="$PATH:$brew_prefix/opt/node@18/bin"
+		add_to_path "$brew_prefix/opt/node@18/bin" 2>/dev/null || export PATH="$PATH:$brew_prefix/opt/node@18/bin"
 	fi
 fi

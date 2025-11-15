@@ -11,7 +11,7 @@ fi
 
 if [ -d "$HOME/.rbenv/bin" ]; then
 	# Add rbenv to PATH
-	add-to-path "$HOME/.rbenv/bin" 2>/dev/null || export PATH="$PATH:$HOME/.rbenv/bin"
+	add_to_path "$HOME/.rbenv/bin" 2>/dev/null || export PATH="$PATH:$HOME/.rbenv/bin"
 	
 	# RbEnv init - detect shell and use appropriate init command
 	# Source is_shell_bash function if available

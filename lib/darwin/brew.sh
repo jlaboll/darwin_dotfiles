@@ -17,10 +17,10 @@ elif [ -f "/usr/local/bin/brew" ]; then
 fi
 
 # Set HOMEBREW_PREFIX if not already set
-if is-command-installed brew 2>/dev/null && [ -z "${HOMEBREW_PREFIX:-}" ]; then
+if is_command_installed brew 2>/dev/null && [ -z "${HOMEBREW_PREFIX:-}" ]; then
   # Use helper function if available, otherwise fallback to direct check
-  if command -v get-homebrew-prefix >/dev/null 2>&1; then
-    export HOMEBREW_PREFIX=$(get-homebrew-prefix)
+  if command -v get_homebrew_prefix >/dev/null 2>&1; then
+    export HOMEBREW_PREFIX=$(get_homebrew_prefix)
   else
     if [ -f "/opt/homebrew/bin/brew" ]; then
       export HOMEBREW_PREFIX="/opt/homebrew" 

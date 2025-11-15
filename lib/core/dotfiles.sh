@@ -31,8 +31,8 @@ function is_shell_bash() {
 # Copies all files from links/ directory to ~/.filename
 # Then sources the appropriate profile file based on default shell
 # Requires: DOTFILES_ROOT must be set
-# Usage: dotfiles-init
-function dotfiles-init() {
+# Usage: dotfiles_init
+function dotfiles_init() {
   txt_path_to_dotfiles=$(cd $DOTFILES_ROOT && pwd)
   txt_rc_files="$txt_path_to_dotfiles/links/*"
 

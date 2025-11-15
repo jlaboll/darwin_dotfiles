@@ -10,14 +10,14 @@ if [ -f "$DOTFILES_ROOT/lib/darwin/common.sh" ]; then
   source "$DOTFILES_ROOT/lib/darwin/common.sh"
 fi
 
-if is-command-installed pip3 2>/dev/null; then
+if is_command_installed pip3 2>/dev/null; then
 	if [ -d "$HOME/Library/Python" ]; then
 		# Find user pip3 bin path
 		PYTHON_3_BIN=$(find "$HOME/Library/Python" -type d -name bin -print -quit 2>/dev/null)
 		
 		if [ -d "$PYTHON_3_BIN" ]; then
 			# Add Python user bin to PATH
-			add-to-path "$PYTHON_3_BIN" 2>/dev/null || export PATH="$PATH:$PYTHON_3_BIN"
+			add_to_path "$PYTHON_3_BIN" 2>/dev/null || export PATH="$PATH:$PYTHON_3_BIN"
 		fi
 	fi
 

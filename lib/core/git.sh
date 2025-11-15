@@ -14,7 +14,6 @@
 # Initialize a new git repository with standard setup
 # Usage: gi "git@github.com:user/repo.git"
 # Creates README.md, .gitignore, initial commit, and sets up remote
-function gi () {
 alias ga="git add -A"
 alias gb="git branch --list"
 alias gc="git commit -am"

@@ -11,9 +11,9 @@ fi
 if [ -d "$HOME/Library/Android/sdk" ]; then
   export ANDROID_HOME="$HOME/Library/Android/sdk"
   # Add Android SDK tools to PATH
-  add-to-path "$ANDROID_HOME/tools" 2>/dev/null || export PATH="$PATH:$ANDROID_HOME/tools"
-  add-to-path "$ANDROID_HOME/tools/bin" 2>/dev/null || export PATH="$PATH:$ANDROID_HOME/tools/bin"
-  add-to-path "$ANDROID_HOME/platform-tools" 2>/dev/null || export PATH="$PATH:$ANDROID_HOME/platform-tools"
+  add_to_path "$ANDROID_HOME/tools" 2>/dev/null || export PATH="$PATH:$ANDROID_HOME/tools"
+  add_to_path "$ANDROID_HOME/tools/bin" 2>/dev/null || export PATH="$PATH:$ANDROID_HOME/tools/bin"
+  add_to_path "$ANDROID_HOME/platform-tools" 2>/dev/null || export PATH="$PATH:$ANDROID_HOME/platform-tools"
 fi
 
 if [ -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home/" ]; then

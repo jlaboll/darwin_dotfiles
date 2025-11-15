@@ -15,7 +15,7 @@ fi
 # Source core functions and run initialization
 if [ -f "$DOTFILES_ROOT/lib/core/dotfiles.sh" ]; then
     source "$DOTFILES_ROOT/lib/core/dotfiles.sh"
-    dotfiles-init
+    dotfiles_init
 else
     echo "Error: Core dotfiles script not found"
     exit 1

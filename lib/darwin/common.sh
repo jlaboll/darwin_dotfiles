@@ -4,9 +4,9 @@
 # This file provides reusable functions for checking installations and managing paths
 
 # Check if a command is installed and available in PATH
-# Usage: if is-command-installed git; then ...
+# Usage: if is_command_installed git; then ...
 # Returns: 0 if installed, 1 if not
-function is-command-installed() {
+function is_command_installed() {
   if command -v "$1" >/dev/null 2>&1; then
     return 0
   else
@@ -15,11 +15,11 @@ function is-command-installed() {
 }
 
 # Check if a Homebrew package is installed
-# Usage: if is-brew-package-installed node@18; then ...
+# Usage: if is_brew_package_installed node@18; then ...
 # Returns: 0 if installed, 1 if not
 # Requires: Homebrew must be installed and in PATH
-function is-brew-package-installed() {
-  if is-command-installed brew && brew list "$1" >/dev/null 2>&1; then
+function is_brew_package_installed() {
+  if is_command_installed brew && brew list "$1" >/dev/null 2>&1; then
     return 0
   else
     return 1
@@ -27,9 +27,9 @@ function is-brew-package-installed() {
 }
 
 # Get the Homebrew prefix path (handles both Apple Silicon and Intel)
-# Usage: brew_prefix=$(get-homebrew-prefix)
+# Usage: brew_prefix=$(get_homebrew_prefix)
 # Returns: /opt/homebrew (Apple Silicon) or /usr/local (Intel) or empty string
-function get-homebrew-prefix() {
+function get_homebrew_prefix() {
   if [ -f "/opt/homebrew/bin/brew" ]; then
     echo "/opt/homebrew"
   elif [ -f "/usr/local/bin/brew" ]; then
@@ -40,9 +40,9 @@ function get-homebrew-prefix() {
 }
 
 # Add a directory to PATH if it exists and is not already in PATH
-# Usage: add-to-path "/some/directory"
+# Usage: add_to_path "/some/directory"
 # This prevents duplicate PATH entries
-function add-to-path() {
+function add_to_path() {
   local dir="$1"
   if [ -d "$dir" ] && [[ ":$PATH:" != *":$dir:"* ]]; then
     export PATH="$PATH:$dir"
@@ -52,10 +52,10 @@ function add-to-path() {
 # Installation function for development tools
 # Installs and updates common development tools via Homebrew
 # Installs: Homebrew (if needed), node@18, openjdk, jq, flutter/fvm
-# Usage: install-devtools [-v]
+# Usage: install_devtools [-v]
 # Options:
 #   -v: Verbose mode - shows installation progress messages
-function install-devtools() {
+function install_devtools() {
   local verbose_mode=false
 
   # Parse command line arguments
@@ -68,12 +68,12 @@ function install-devtools() {
   done
 
   # Install/update Homebrew
-  if ! is-command-installed brew; then
+  if ! is_command_installed brew; then
     [ "$verbose_mode" == true ] && echo "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
     # Add Homebrew to PATH (handles both Apple Silicon and Intel)
-    local brew_prefix=$(get-homebrew-prefix)
+    local brew_prefix=$(get_homebrew_prefix)
     if [ -n "$brew_prefix" ] && [ -f "$brew_prefix/bin/brew" ]; then
       eval "$($brew_prefix/bin/brew shellenv)"
     fi
@@ -84,14 +84,14 @@ function install-devtools() {
   
   # Set HOMEBREW_PREFIX if not already set
   if [ -z "${HOMEBREW_PREFIX:-}" ]; then
-    local brew_prefix=$(get-homebrew-prefix)
+    local brew_prefix=$(get_homebrew_prefix)
     if [ -n "$brew_prefix" ]; then
       export HOMEBREW_PREFIX="$brew_prefix"
     fi
   fi
   
   # Install node@18
-  if ! is-brew-package-installed node@18; then
+  if ! is_brew_package_installed node@18; then
     [ "$verbose_mode" == true ] && echo "Installing Node 18..."
     brew install node@18 -q
   else
@@ -100,7 +100,7 @@ function install-devtools() {
   fi
   
   # Install openjdk 
-  if ! is-brew-package-installed openjdk; then
+  if ! is_brew_package_installed openjdk; then
     [ "$verbose_mode" == true ] && echo "Installing OpenJDK..."
     brew install openjdk -q
   else
@@ -109,7 +109,7 @@ function install-devtools() {
   fi
   
   # Install jq
-  if ! is-brew-package-installed jq; then
+  if ! is_brew_package_installed jq; then
     [ "$verbose_mode" == true ] && echo "Installing jq..."
     brew install jq -q
   else
@@ -117,16 +117,16 @@ function install-devtools() {
   fi
 
   # Install flutter
-  if is-command-installed flutter; then
+  if is_command_installed flutter; then
     [ "$verbose_mode" == true ] && echo "Flutter already installed, updating..."
-    if is-brew-package-installed flutter; then
+    if is_brew_package_installed flutter; then
       brew upgrade flutter -q
     else
       flutter upgrade -q
     fi
   else
     # Install fvm 
-    if ! is-command-installed fvm; then
+    if ! is_command_installed fvm; then
       [ "$verbose_mode" == true ] && echo "Installing FVM..."
       brew install fvm -q
     else
@@ -142,5 +142,5 @@ function install-devtools() {
   echo "  ✓ Node 18"
   echo "  ✓ OpenJDK"
   echo "  ✓ Flutter"
-  is-command-installed fvm && echo "  ✓ FVM"
+  is_command_installed fvm && echo "  ✓ FVM"
 }

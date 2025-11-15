@@ -10,6 +10,6 @@
 # Usage: up
 function up () {
   git -C "$DOTFILES_ROOT" pull
-  dotfiles-init
+  dotfiles_init
   echo "Dotfiles updated."
 }
