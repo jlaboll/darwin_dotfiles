@@ -23,8 +23,7 @@ if is_command_installed pip3 2>/dev/null; then
 
 	# Function for pip3 completion (bash only)
 	if [ -n "$BASH_VERSION" ]; then
-		_pip_completion()
-		{
+		function _pip_completion() {
 		    COMPREPLY=( $( COMP_WORDS="${COMP_WORDS[*]}" \
 		                   COMP_CWORD=$COMP_CWORD \
 		                   PIP_AUTO_COMPLETE=1 $1 2>/dev/null ) )

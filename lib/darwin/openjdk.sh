@@ -11,15 +11,18 @@ if [ -f "$DOTFILES_ROOT/lib/darwin/common.sh" ]; then
   source "$DOTFILES_ROOT/lib/darwin/common.sh"
 fi
 
+if [ -f "$DOTFILES_ROOT/lib/darwin/brew.sh" ]; then
+  source "$DOTFILES_ROOT/lib/darwin/brew.sh"
+fi
+
 # Check if brew is available and openjdk is installed
 if is_command_installed brew 2>/dev/null; then
-	local brew_prefix="${HOMEBREW_PREFIX:-$(get_homebrew_prefix 2>/dev/null)}"
-	if [ -n "$brew_prefix" ] && [ -d "$brew_prefix/opt/openjdk/bin" ]; then
+	if [ -d "$HOMEBREW_PREFIX/opt/openjdk/bin" ]; then
 		# Add openjdk to PATH
-		add_to_path "$brew_prefix/opt/openjdk/bin" 2>/dev/null || export PATH="$brew_prefix/opt/openjdk/bin:$PATH"
+		add_to_path "$HOMEBREW_PREFIX/opt/openjdk/bin" 2>/dev/null || export PATH="$HOMEBREW_PREFIX/opt/openjdk/bin:$PATH"
 		
 		# Set JAVA_HOME
-		export OPENJDK_JAVA_HOME="$brew_prefix/opt/openjdk/libexec/openjdk.jdk/Contents/Home/"
+		export OPENJDK_JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk/libexec/openjdk.jdk/Contents/Home/"
 		export JAVA_HOME="${JAVA_HOME:-$OPENJDK_JAVA_HOME}"
 	fi
 fi
