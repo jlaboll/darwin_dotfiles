@@ -1,0 +1,7 @@
+#!bin/sh
+
+if [[ -f ~/.zshrc ]]; then
+  source ~/.zshrc
+fi
+
+export GOOGLE_PLACES_API_KEY="YOUR_KEY_HERE"
