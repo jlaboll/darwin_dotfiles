@@ -90,15 +90,6 @@ function install_devtools() {
     fi
   fi
   
-  # Install node@18
-  if ! is_brew_package_installed node@18; then
-    [ "$verbose_mode" == true ] && echo "Installing Node 18..."
-    brew install node@18 -q
-  else
-    [ "$verbose_mode" == true ] && echo "Node 18 already installed, updating..."
-    brew upgrade node@18 -q
-  fi
-  
   # Install openjdk 
   if ! is_brew_package_installed openjdk; then
     [ "$verbose_mode" == true ] && echo "Installing OpenJDK..."
@@ -139,7 +130,6 @@ function install_devtools() {
   echo "Installation complete."
   echo "Installed:"
   echo "  ✓ Homebrew"
-  echo "  ✓ Node 18"
   echo "  ✓ OpenJDK"
   echo "  ✓ Flutter"
   is_command_installed fvm && echo "  ✓ FVM"

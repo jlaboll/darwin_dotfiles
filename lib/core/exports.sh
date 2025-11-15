@@ -6,10 +6,10 @@
 # - less (for PAGER)
 
 # Exports for visual editor, pager, colors, and less
-# If DOTFILE_EXPORTS is set to "true", forces defaults even if variables are already set
+# If DOTFILE_EXPORTS is set to "0", forces defaults even if variables are already set
 # Otherwise, sets defaults only if variables are unset
-# This allows users to override defaults when DOTFILE_EXPORTS != "true"
-if [ "$DOTFILE_EXPORTS" == true ]; then
+# This allows users to override defaults when DOTFILE_EXPORTS != "0"
+if [[ -n "${DOTFILE_EXPORTS:-}" ]] && [ ${DOTFILE_EXPORTS:-0} ]; then
   export VISUAL="${VISUAL:+nano}"
 
   export CLICOLOR="${CLICOLOR:+1}"
@@ -17,7 +17,6 @@ if [ "$DOTFILE_EXPORTS" == true ]; then
 
   export PAGER="${PAGER:+less}"
   export LESS="${LESS:+-iMFXSx4R}"
-
 else 
   export VISUAL="${VISUAL:-nano}"
 

@@ -33,15 +33,16 @@ function is_shell_bash() {
 # Requires: DOTFILES_ROOT must be set
 # Usage: dotfiles_init
 function dotfiles_init() {
-  txt_path_to_dotfiles=$(cd $DOTFILES_ROOT && pwd)
-  txt_rc_files="$txt_path_to_dotfiles/links/*"
+  local txt_path_to_dotfiles=$(cd $DOTFILES_ROOT && pwd)
+  local txt_rc_files="$txt_path_to_dotfiles/links/*"
+  local txt_rc_file=""
 
   # Helper function to copy a file from links/ to home directory
   # Removes existing file if present, then copies new one
   function link_file () {
-    txt_source="$1"
-    txt_file_name=$(basename "$txt_source")
-    txt_dest="$HOME/.$txt_file_name"
+    local txt_source="$1"
+    local txt_file_name=$(basename "$txt_source")
+    local txt_dest="$HOME/.$txt_file_name"
 
     if [[ -f "$txt_dest" ]]; then
       rm "$txt_dest"

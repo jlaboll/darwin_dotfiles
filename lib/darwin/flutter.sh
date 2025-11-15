@@ -34,7 +34,7 @@ function bump_flutter() {
 # Parameters:
 #   $1: Path to Flutter root directory
 function unquarantine_flutter() {
-  flutter_root="$1"
+  local flutter_root="$1"
   for executable in dart dartaotruntime impellerrc gen_snapshot flutter_tester idevicesyslog iproxy "*.dylib"
   do 
     for filepath in $(find "$flutter_root" -type f -name "$executable")
@@ -68,7 +68,7 @@ fi
 ###-begin-flutter-completion-###
 
 if type complete &>/dev/null; then
-  __flutter_completion() {
+  function __flutter_completion() {
     local si="$IFS"
     IFS=$'\n' COMPREPLY=($(COMP_CWORD="$COMP_CWORD" \
                            COMP_LINE="$COMP_LINE" \
@@ -79,7 +79,7 @@ if type complete &>/dev/null; then
   }
   complete -F __flutter_completion flutter
 elif type compdef &>/dev/null; then
-  __flutter_completion() {
+  function __flutter_completion() {
     si=$IFS
     compadd -- $(COMP_CWORD=$((CURRENT-1)) \
                  COMP_LINE=$BUFFER \
@@ -90,7 +90,7 @@ elif type compdef &>/dev/null; then
   }
   compdef __flutter_completion flutter
 elif type compctl &>/dev/null; then
-  __flutter_completion() {
+  function __flutter_completion() {
     local cword line point words si
     read -Ac words
     read -cn cword

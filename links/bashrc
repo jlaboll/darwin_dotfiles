@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # Load the .profile if present
 [[ -s "$HOME/.profile" ]] && source "$HOME/.profile"
 

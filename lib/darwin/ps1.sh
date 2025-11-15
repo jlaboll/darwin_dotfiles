@@ -4,7 +4,7 @@
 # Requires:
 # - git installed
 # Flags:
-# - DOTFILES_PS1: If set and non-zero, enables custom prompt
+# - DOTFILES_PS1: If set to zero, enables custom prompt
 
 # Custom prompt shows:
 # - Current time
@@ -13,7 +13,7 @@
 # - Git branch and dirty status (* if uncommitted changes)
 # - Different colors for SSH vs local sessions
 
-if [[ -n "${DOTFILES_PS1:-}" ]] && [ ${DOTFILES_PS1:-1} ]; then
+if [[ -n "${DOTFILES_PS1:-}" ]] && [ ${DOTFILES_PS1:-0} ]; then
 	# Check if current session is SSH
 	# Returns 0 if SSH, 1 if local
 	is_ssh(){

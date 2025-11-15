@@ -17,8 +17,6 @@ source $DOTFILES_ROOT/lib/core/update.sh
 
 # MacOS
 if [ "$(uname)" = "Darwin" ]; then
-	export BASH_SILENCE_DEPRECATION_WARNING=1
-	
 	# Darwin sources
 	source $DOTFILES_ROOT/lib/darwin/ps1.sh
 	source $DOTFILES_ROOT/lib/darwin/brew.sh
