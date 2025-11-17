@@ -7,12 +7,11 @@ Bash/Zsh profile configuration for macOS (Darwin) based devices. This repository
 - **Shell Support**: Works with both Bash and Zsh
 - **Architecture Support**: Handles both Apple Silicon (ARM64) and Intel (x86_64) Macs
 - **Development Tools**: Pre-configured for:
-  - Node.js (v18)
   - Flutter/FVM
   - Python 3
-  - Ruby (via rbenv)
+  - Ruby (via rbenv, installed separately)
   - OpenJDK
-  - Android SDK
+  - Android SDK (installed separately)
 - **Git Integration**: Custom aliases and helper functions
 - **Custom Prompt**: Git-aware PS1 with branch and dirty status
 - **Homebrew Integration**: Automatic detection and setup
@@ -30,7 +29,7 @@ Bash/Zsh profile configuration for macOS (Darwin) based devices. This repository
 Run the installation script:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/jlaboll/darwin_dotfiles/main/setup/install.sh)
+/bin/bash <(curl -fsSL https://raw.githubusercontent.com/jlaboll/darwin_dotfiles/main/setup/install.sh)
 ```
 
 Or manually:
@@ -66,7 +65,6 @@ git clone git@github.com:jlaboll/darwin_dotfiles.git ~/.darwin_dotfiles
 The dotfiles use several environment variables to control behavior:
 
 - `DOTFILES_ROOT`: Path to dotfiles directory (default: `$HOME/.darwin_dotfiles`)
-- `DOTFILES_NODE`: If set, adds Node.js to PATH
 - `DOTFILES_PS1`: If set and non-zero, enables custom prompt (default: enabled)
 - `DOTFILE_EXPORTS`: If set to `"true"`, forces default exports even if variables are already set
 
@@ -75,9 +73,6 @@ The dotfiles use several environment variables to control behavior:
 Set these variables in your `~/.profile` or `~/.zprofile` before sourcing the dotfiles:
 
 ```bash
-# Enable Node.js PATH configuration
-export DOTFILES_NODE=1
-
 # Disable custom prompt
 export DOTFILES_PS1=0
 
@@ -89,11 +84,11 @@ export DOTFILE_EXPORTS=true
 
 ### Available Functions
 
-#### `dotfiles-init`
+#### `dotfiles_init`
 Reinitializes dotfiles by copying files from `links/` to your home directory.
 
 ```bash
-dotfiles-init
+dotfiles_init
 ```
 
 #### `up`
@@ -103,26 +98,26 @@ Updates dotfiles from git repository and reinitializes.
 up
 ```
 
-#### `install-devtools`
-Installs development tools via Homebrew (Homebrew, Node.js, OpenJDK, Flutter/FVM, jq).
+#### `install_devtools`
+Installs development tools via Homebrew (Homebrew, OpenJDK, Flutter/FVM, jq).
 
 ```bash
-install-devtools        # Silent mode
-install-devtools -v     # Verbose mode
+install_devtools        # Silent-ish mode
+install_devtools -v     # Verbose mode
 ```
 
-#### `bump-flutter`
+#### `bump_flutter`
 Updates Flutter installation and clears macOS quarantine flags.
 
 ```bash
-bump-flutter
+bump_flutter
 ```
 
-#### `unquarantine-flutter`
+#### `unquarantine_flutter`
 Removes macOS quarantine attributes from Flutter executables.
 
 ```bash
-unquarantine-flutter "/path/to/flutter/root"
+unquarantine_flutter "/path/to/flutter/root"
 ```
 
 ### Git Aliases
@@ -155,7 +150,6 @@ darwin_dotfiles/
 │       ├── brew.sh        # Homebrew setup
 │       ├── common.sh      # Common utility functions
 │       ├── flutter.sh     # Flutter/FVM configuration
-│       ├── node.sh        # Node.js configuration
 │       ├── openjdk.sh     # OpenJDK configuration
 │       ├── ps1.sh         # Custom prompt
 │       ├── python3.sh     # Python 3 configuration

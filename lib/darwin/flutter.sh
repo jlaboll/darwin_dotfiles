@@ -60,8 +60,8 @@ if is_command_installed fvm 2>/dev/null && is_command_installed jq 2>/dev/null; 
   export FVM_CACHE_PATH=$(fvm api context | jq -r '.context.fvmDir')
 fi
 
-if is_command_installed fvm 2>/dev/null && [ -d "$DOTFILES_ROOT/bin" ]; then
-  add_to_path "$DOTFILES_ROOT/bin" 2>/dev/null || export PATH="$PATH:$DOTFILES_ROOT/bin"
+if is_command_installed fvm 2>/dev/null && [ -d "$DOTFILES_ROOT/fvm/bin" ]; then
+  add_to_path "$DOTFILES_ROOT/fvm/bin" 2>/dev/null || export PATH="$PATH:$DOTFILES_ROOT/fvm/bin"
 fi 
 
 ## Generated 2025-11-14 22:38:24.434932Z
