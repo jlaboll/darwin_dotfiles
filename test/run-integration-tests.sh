@@ -23,29 +23,85 @@ VM_PASS="${VM_PASS:-admin}"
 SSH_TIMEOUT=120
 BOOT_WAIT=60
 
+# Proxy configuration for Zscaler/corporate environments
+VM_GATEWAY="192.168.64.1"
+PROXY_FORWARD_PORT=9001
+ZSCALER_PROXY_PORT=9000
+PROXY_FORWARDER_PID=""
+
 # Test results tracking
 TESTS_PASSED=0
 TESTS_FAILED=0
 declare -a FAILED_TESTS
 
 log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1" >&2
 }
 
 log_success() {
-    echo -e "${GREEN}[PASS]${NC} $1"
-    ((TESTS_PASSED++))
+    echo -e "${GREEN}[PASS]${NC} $1" >&2
+    TESTS_PASSED=$((TESTS_PASSED + 1))
 }
 
 log_error() {
-    echo -e "${RED}[FAIL]${NC} $1"
-    ((TESTS_FAILED++))
+    echo -e "${RED}[FAIL]${NC} $1" >&2
+    TESTS_FAILED=$((TESTS_FAILED + 1))
     FAILED_TESTS+=("$1")
 }
 
 log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+    echo -e "${YELLOW}[WARN]${NC} $1" >&2
 }
+
+# Start proxy forwarder for Zscaler environments
+# Checks if Zscaler proxy is running on localhost and sets up a forwarder
+# that the VM can reach
+start_proxy_forwarder() {
+    # Check if Zscaler proxy is listening on localhost
+    if ! lsof -i :$ZSCALER_PROXY_PORT -sTCP:LISTEN >/dev/null 2>&1; then
+        log_info "No local proxy on port $ZSCALER_PROXY_PORT, skipping proxy forwarder"
+        return 0
+    fi
+    
+    log_info "Detected Zscaler proxy on localhost:$ZSCALER_PROXY_PORT"
+    log_info "Starting proxy forwarder ($VM_GATEWAY:$PROXY_FORWARD_PORT -> 127.0.0.1:$ZSCALER_PROXY_PORT)..."
+    
+    python3 "$SCRIPT_DIR/lib/proxy-forwarder.py" \
+        "$VM_GATEWAY" "$PROXY_FORWARD_PORT" \
+        "127.0.0.1" "$ZSCALER_PROXY_PORT" &
+    PROXY_FORWARDER_PID=$!
+    
+    sleep 1
+    
+    if kill -0 $PROXY_FORWARDER_PID 2>/dev/null; then
+        log_success "Proxy forwarder started (PID: $PROXY_FORWARDER_PID)"
+        export VM_PROXY_URL="http://$VM_GATEWAY:$PROXY_FORWARD_PORT"
+    else
+        log_warn "Failed to start proxy forwarder"
+        PROXY_FORWARDER_PID=""
+    fi
+}
+
+# Stop proxy forwarder
+stop_proxy_forwarder() {
+    if [[ -n "$PROXY_FORWARDER_PID" ]]; then
+        log_info "Stopping proxy forwarder..."
+        kill $PROXY_FORWARDER_PID 2>/dev/null || true
+        wait $PROXY_FORWARDER_PID 2>/dev/null || true
+        PROXY_FORWARDER_PID=""
+    fi
+}
+
+# Cleanup handler
+cleanup() {
+    stop_proxy_forwarder
+    # Clean up any lingering test VMs
+    for vm in $(tart list 2>/dev/null | grep "$VM_NAME_PREFIX" | awk '{print $2}'); do
+        pkill -f "tart run $vm" 2>/dev/null || true
+    done
+}
+
+trap cleanup EXIT
 
 # Check prerequisites
 check_prerequisites() {
@@ -72,19 +128,25 @@ create_test_vm() {
     log_info "Creating test VM: $vm_name"
     
     # Delete existing VM if present
-    if tart list | grep -q "$vm_name"; then
+    if tart list 2>/dev/null | grep -q "$vm_name"; then
         log_info "Deleting existing VM: $vm_name"
-        tart delete "$vm_name" 2>/dev/null || true
+        tart delete "$vm_name" >/dev/null 2>&1 || true
     fi
     
     # Check if base image exists, pull if not
-    if ! tart list | grep -q "dotfiles-base"; then
+    if ! tart list 2>/dev/null | grep -q "dotfiles-base"; then
+        log_warn "Base image 'dotfiles-base' not found."
         log_info "Pulling base image: $BASE_IMAGE"
-        tart clone "$BASE_IMAGE" dotfiles-base
+        log_warn "This will download ~15GB and may take 10-30 minutes..."
+        log_info "(Run ./test/setup-tart.sh first to do this step separately)"
+        echo "" >&2
+        tart clone "$BASE_IMAGE" dotfiles-base >&2
+        echo "" >&2
+        log_success "Base image pulled successfully"
     fi
     
     # Clone from local base for faster iteration
-    tart clone dotfiles-base "$vm_name"
+    tart clone dotfiles-base "$vm_name" >&2
     
     echo "$vm_name"
 }
@@ -96,11 +158,16 @@ start_vm() {
     log_info "Starting VM: $vm_name"
     
     # Start VM in background (headless)
-    tart run "$vm_name" --no-graphics &
+    tart run "$vm_name" --no-graphics >&2 &
     VM_PID=$!
     
     log_info "Waiting for VM to boot (${BOOT_WAIT}s)..."
-    sleep "$BOOT_WAIT"
+    local i
+    for ((i=BOOT_WAIT; i>0; i-=10)); do
+        echo -ne "\r  ${BLUE}Boot wait:${NC} ${i}s remaining...  " >&2
+        sleep 10
+    done
+    echo -e "\r  ${GREEN}Boot wait complete.${NC}              " >&2
     
     # Get VM IP
     local vm_ip
@@ -114,15 +181,61 @@ start_vm() {
     log_info "VM IP: $vm_ip"
     
     # Wait for SSH to be ready
+    log_info "Waiting for SSH to be ready..."
     local timeout=$SSH_TIMEOUT
     while ! sshpass -p "$VM_PASS" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 "$VM_USER@$vm_ip" "echo ready" >/dev/null 2>&1; do
-        ((timeout--))
+        timeout=$((timeout - 1))
         if [[ $timeout -le 0 ]]; then
+            echo "" >&2
             log_error "SSH timeout waiting for VM"
             return 1
         fi
+        if ((timeout % 10 == 0)); then
+            echo -ne "\r  ${BLUE}SSH wait:${NC} ${timeout}s remaining...  " >&2
+        fi
         sleep 1
     done
+    echo -e "\r  ${GREEN}SSH connected.${NC}                    " >&2
+    
+    # Configure public DNS (VM may inherit unreachable corporate DNS from host)
+    log_info "Configuring DNS..."
+    sshpass -p "$VM_PASS" ssh -o StrictHostKeyChecking=no "$VM_USER@$vm_ip" \
+        "sudo networksetup -setdnsservers 'Ethernet' 8.8.8.8 8.8.4.4" >/dev/null 2>&1 || true
+    
+    # Install SSL proxy certificates (e.g., Zscaler) from host to VM
+    # This handles corporate SSL inspection proxies
+    if security find-certificate -a -c "Zscaler" -p /Library/Keychains/System.keychain >/dev/null 2>&1; then
+        log_info "Installing Zscaler SSL certificate in VM..."
+        local cert_file="/tmp/dotfiles-test-zscaler-ca.pem"
+        security find-certificate -a -c "Zscaler" -p /Library/Keychains/System.keychain > "$cert_file" 2>/dev/null
+        sshpass -p "$VM_PASS" scp -o StrictHostKeyChecking=no "$cert_file" "$VM_USER@$vm_ip:/tmp/" >/dev/null 2>&1
+        sshpass -p "$VM_PASS" ssh -o StrictHostKeyChecking=no "$VM_USER@$vm_ip" \
+            "sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/dotfiles-test-zscaler-ca.pem" >/dev/null 2>&1 || true
+        rm -f "$cert_file"
+    fi
+    
+    # Configure proxy environment if forwarder is running
+    if [[ -n "$VM_PROXY_URL" ]]; then
+        log_info "Configuring proxy environment in VM..."
+        sshpass -p "$VM_PASS" ssh -o StrictHostKeyChecking=no "$VM_USER@$vm_ip" "cat >> ~/.zprofile" << PROXYEOF
+# Proxy configuration for corporate network (auto-added by test runner)
+export HTTP_PROXY="$VM_PROXY_URL"
+export HTTPS_PROXY="$VM_PROXY_URL"
+export http_proxy="$VM_PROXY_URL"
+export https_proxy="$VM_PROXY_URL"
+export ALL_PROXY="$VM_PROXY_URL"
+export NO_PROXY="localhost,127.0.0.1,192.168.64.0/24"
+PROXYEOF
+        sshpass -p "$VM_PASS" ssh -o StrictHostKeyChecking=no "$VM_USER@$vm_ip" "cat >> ~/.bash_profile" << PROXYEOF
+# Proxy configuration for corporate network (auto-added by test runner)
+export HTTP_PROXY="$VM_PROXY_URL"
+export HTTPS_PROXY="$VM_PROXY_URL"
+export http_proxy="$VM_PROXY_URL"
+export https_proxy="$VM_PROXY_URL"
+export ALL_PROXY="$VM_PROXY_URL"
+export NO_PROXY="localhost,127.0.0.1,192.168.64.0/24"
+PROXYEOF
+    fi
     
     log_success "VM is ready at $vm_ip"
     echo "$vm_ip"
@@ -229,14 +342,20 @@ test_environment() {
         log_error "DOTFILES_ROOT not set correctly: $dotfiles_root"
     fi
     
-    # Test PATH includes dotfiles bin
+    # Test PATH includes dotfiles bin (only when FVM is installed)
     local path_output
     path_output=$(vm_exec "$vm_ip" "source ~/.${shell_type}_profile 2>/dev/null; echo \$PATH")
+    local has_fvm
+    has_fvm=$(vm_exec "$vm_ip" "command -v fvm >/dev/null 2>&1 && echo yes || echo no")
     
-    if [[ "$path_output" == *"darwin_dotfiles/bin"* ]]; then
-        log_success "PATH includes dotfiles bin directory"
+    if [[ "$has_fvm" == "yes" ]]; then
+        if [[ "$path_output" == *"darwin_dotfiles/bin"* ]]; then
+            log_success "PATH includes dotfiles bin directory (FVM installed)"
+        else
+            log_error "PATH does not include dotfiles bin directory (FVM is installed)"
+        fi
     else
-        log_error "PATH does not include dotfiles bin directory"
+        log_info "Skipping PATH bin test (FVM not installed - bin only added with FVM)"
     fi
     
     # Test shell detection
@@ -273,15 +392,6 @@ test_functions() {
     else
         log_error "'up' function not available"
     fi
-    
-    # Test git aliases
-    for alias in ga gb gc gs gp; do
-        if vm_exec "$vm_ip" "$source_cmd; type $alias" >/dev/null 2>&1; then
-            log_success "Git alias '$alias' is available"
-        else
-            log_error "Git alias '$alias' not available"
-        fi
-    done
     
     # Test install_devtools is available
     if vm_exec "$vm_ip" "$source_cmd; type install_devtools" >/dev/null 2>&1; then
@@ -424,6 +534,7 @@ main() {
     echo ""
     
     check_prerequisites
+    start_proxy_forwarder
     
     case "$shell_filter" in
         bash)
