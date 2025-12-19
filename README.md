@@ -79,10 +79,9 @@ darwin_dotfiles/
 │   ├── bashrc
 │   ├── zsh_profile
 │   └── zshrc
-├── setup/
-│   ├── install.sh          # Remote installation script
-│   └── init.sh             # Local initialization
-└── test/                   # Integration tests (Tart VMs)
+└── setup/
+    ├── install.sh          # Remote installation script
+    └── init.sh             # Local initialization
 ```
 
 ## How It Works
@@ -92,25 +91,6 @@ The dotfiles use a **managed section** approach:
 1. `init.sh` copies content from `links/` to your home directory (e.g., `links/bashrc` → `~/.bashrc`)
 2. Content is wrapped in marker comments: `# >>> DOTFILES MANAGED SECTION ...`
 3. Running `up` or `dotfiles_init` replaces only the managed section, preserving your custom configurations
-
-## Testing
-
-Integration tests use [Tart](https://github.com/cirruslabs/tart) to spin up clean macOS VMs:
-
-```bash
-# Setup (one-time)
-./test/setup-tart.sh
-
-# Run tests
-./test/run-integration-tests.sh        # Test both shells
-./test/run-integration-tests.sh bash   # Bash only
-./test/run-integration-tests.sh zsh    # Zsh only
-
-# Interactive VM for debugging
-./test/run-interactive-vm.sh
-```
-
-See `test/README.md` for details.
 
 ## Troubleshooting
 
