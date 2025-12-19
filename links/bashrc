@@ -1,8 +1,3 @@
-# Dotfile Variables
-export DOTFILES_PS1=1 											 # Change to 0 to enable custom PS1
-export DOTFILE_EXPORTS=1                     # Change to 0 to enable custom exports
-export GOOGLE_PLACES_API_KEY="YOUR_KEY_HERE" # Change to valid API key
-
 # Load the .profile if present
 [[ -s "$HOME/.profile" ]] && source "$HOME/.profile"
 
@@ -14,8 +9,6 @@ export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 
 # Core sources
 source $DOTFILES_ROOT/lib/core/dotfiles.sh
-source $DOTFILES_ROOT/lib/core/exports.sh
-source $DOTFILES_ROOT/lib/core/git.sh
 source $DOTFILES_ROOT/lib/core/update.sh
 
 # MacOS
@@ -23,13 +16,7 @@ if [ "$(uname)" = "Darwin" ]; then
 	export BASH_SILENCE_DEPRECATION_WARNING=1
 	
 	# Darwin sources
-	source $DOTFILES_ROOT/lib/darwin/ps1.sh
 	source $DOTFILES_ROOT/lib/darwin/brew.sh
 	source $DOTFILES_ROOT/lib/darwin/common.sh
-	source $DOTFILES_ROOT/lib/darwin/rbenv.sh
-	source $DOTFILES_ROOT/lib/darwin/openjdk.sh
 	source $DOTFILES_ROOT/lib/darwin/flutter.sh
-	source $DOTFILES_ROOT/lib/darwin/node.sh
-	source $DOTFILES_ROOT/lib/darwin/python3.sh
-	source $DOTFILES_ROOT/lib/darwin/android.sh
 fi 
