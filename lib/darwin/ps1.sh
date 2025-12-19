@@ -13,7 +13,7 @@
 # - Git branch and dirty status (* if uncommitted changes)
 # - Different colors for SSH vs local sessions
 
-if [[ -n "${DOTFILES_PS1:-}" ]] && [ ${DOTFILES_PS1:-0} ]; then
+if [ ${DOTFILES_PS1:-0} ]; then
 	# Check if current session is SSH
 	# Returns 0 if SSH, 1 if local
 	is_ssh(){
