@@ -64,9 +64,14 @@ if is_command_installed fvm 2>/dev/null && [ -d "$DOTFILES_ROOT/bin" ]; then
   add_to_path "$DOTFILES_ROOT/bin" 2>/dev/null || export PATH="$PATH:$DOTFILES_ROOT/bin"
 fi 
 
+if is_command_installed flutter 2>/dev/null; then
+  function flutter_run_web(){
+    flutter run -d Chrome "$1" --web-browser-flag=--disable-web-security --web-browser-flag=--user-data-dir=~/chrome-dev-data
+  }
+fi 
+
 ## Generated 2025-11-14 22:38:24.434932Z
 ###-begin-flutter-completion-###
-
 if type complete &>/dev/null; then
   function __flutter_completion() {
     local si="$IFS"
@@ -107,5 +112,4 @@ elif type compctl &>/dev/null; then
   }
   compctl -K __flutter_completion flutter
 fi
-
 ###-end-flutter-completion-###

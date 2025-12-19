@@ -51,7 +51,7 @@ function add_to_path() {
 
 # Installation function for development tools
 # Installs and updates common development tools via Homebrew
-# Installs: Homebrew (if needed), node@18, openjdk, jq, flutter/fvm
+# Installs: Homebrew (if needed), jq, flutter/fvm
 # Usage: install_devtools [-v]
 # Options:
 #   -v: Verbose mode - shows installation progress messages
@@ -90,15 +90,6 @@ function install_devtools() {
     fi
   fi
   
-  # Install openjdk 
-  if ! is_brew_package_installed openjdk; then
-    [ "$verbose_mode" == true ] && echo "Installing OpenJDK..."
-    brew install openjdk -q
-  else
-    [ "$verbose_mode" == true ] && echo "OpenJDK already installed, updating..."
-    brew upgrade openjdk -q
-  fi
-  
   # Install jq
   if ! is_brew_package_installed jq; then
     [ "$verbose_mode" == true ] && echo "Installing jq..."
@@ -119,6 +110,7 @@ function install_devtools() {
     # Install fvm 
     if ! is_command_installed fvm; then
       [ "$verbose_mode" == true ] && echo "Installing FVM..."
+      brew tap leoafarias/fvm -q
       brew install fvm -q
     else
       [ "$verbose_mode" == true ] && echo "FVM already installed, updating..."
@@ -130,7 +122,7 @@ function install_devtools() {
   echo "Installation complete."
   echo "Installed:"
   echo "  ✓ Homebrew"
-  echo "  ✓ OpenJDK"
+  echo "  ✓ JQ (JSON CLI tool)"
   echo "  ✓ Flutter"
   is_command_installed fvm && echo "  ✓ FVM"
 }

@@ -1,6 +1,6 @@
 # darwin_dotfiles
 
-Bash/Zsh profile configuration for macOS (Darwin) based devices. This repository provides a comprehensive set of dotfiles for macOS development environments, including support for Node.js, Flutter, Python, Ruby, Java, and Android development.
+Bash/Zsh profile configuration for macOS (Darwin) based devices. This repository provides a comprehensive set of dotfiles for macOS development environments, with extensive support for Dart/Flutter development.
 
 ## Features
 
@@ -8,10 +8,6 @@ Bash/Zsh profile configuration for macOS (Darwin) based devices. This repository
 - **Architecture Support**: Handles both Apple Silicon (ARM64) and Intel (x86_64) Macs
 - **Development Tools**: Pre-configured for:
   - Flutter/FVM
-  - Python 3
-  - Ruby (via rbenv, installed separately)
-  - OpenJDK
-  - Android SDK (installed separately)
 - **Git Integration**: Custom aliases and helper functions
 - **Custom Prompt**: Git-aware PS1 with branch and dirty status
 - **Homebrew Integration**: Automatic detection and setup
@@ -65,19 +61,19 @@ git clone git@github.com:jlaboll/darwin_dotfiles.git ~/.darwin_dotfiles
 The dotfiles use several environment variables to control behavior:
 
 - `DOTFILES_ROOT`: Path to dotfiles directory (default: `$HOME/.darwin_dotfiles`)
-- `DOTFILES_PS1`: If set and non-zero, enables custom prompt (default: enabled)
-- `DOTFILE_EXPORTS`: If set to `"true"`, forces default exports even if variables are already set
+- `DOTFILES_PS1`: If set to `0`, enables custom prompt (default: disabled)
+- `DOTFILE_EXPORTS`: If set to `0`, forces custom exports for `VISUAL`, `CLICOLOR`, `LSCOLORS`, `PAGER`, and `LESS` (default: disabled)
 
-### Flags
+### Flags (Optional)
 
-Set these variables in your `~/.profile` or `~/.zprofile` before sourcing the dotfiles:
+Set these variables in your `~/.profile` or `~/.zprofile`:
 
 ```bash
 # Disable custom prompt
-export DOTFILES_PS1=0
+export DOTFILES_PS1=1
 
-# Force default exports
-export DOTFILE_EXPORTS=true
+# Enable custom exports
+export DOTFILE_EXPORTS=0
 ```
 
 ## Usage
@@ -99,11 +95,10 @@ up
 ```
 
 #### `install_devtools`
-Installs development tools via Homebrew (Homebrew, OpenJDK, Flutter/FVM, jq).
+Installs development tools via Homebrew (Homebrew, Flutter/FVM, jq).
 
 ```bash
-install_devtools        # Silent-ish mode
-install_devtools -v     # Verbose mode
+install_devtools        # add `-v` for verbose
 ```
 
 #### `bump_flutter`
@@ -146,14 +141,10 @@ darwin_dotfiles/
 │   │   ├── git.sh         # Git aliases and functions
 │   │   └── update.sh      # Update function
 │   └── darwin/            # macOS-specific configurations
-│       ├── android.sh     # Android SDK configuration
 │       ├── brew.sh        # Homebrew setup
 │       ├── common.sh      # Common utility functions
 │       ├── flutter.sh     # Flutter/FVM configuration
-│       ├── openjdk.sh     # OpenJDK configuration
 │       ├── ps1.sh         # Custom prompt
-│       ├── python3.sh     # Python 3 configuration
-│       └── rbenv.sh       # Ruby version manager
 ├── links/                 # Template files copied to home directory
 │   ├── bash_profile
 │   ├── bashrc

@@ -1,3 +1,8 @@
+# Dotfile Variables
+export DOTFILES_PS1=1 											 # Change to 0 to enable custom PS1
+export DOTFILE_EXPORTS=1                     # Change to 0 to enable custom exports
+export GOOGLE_PLACES_API_KEY="YOUR_KEY_HERE" # Change to valid API key
+
 # Load the .profile if present
 [[ -s "$HOME/.profile" ]] && source "$HOME/.profile"
 

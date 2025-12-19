@@ -1,1 +1,2 @@
+#!/bin/sh
 fvm dart ${@:1}

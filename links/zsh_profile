@@ -3,7 +3,3 @@
 if [[ -f ~/.zshrc ]]; then
   source ~/.zshrc
 fi
-
-export DOTFILES_PS1=0
-export DOTFILE_EXPORTS=0
-export GOOGLE_PLACES_API_KEY="YOUR_KEY_HERE"
